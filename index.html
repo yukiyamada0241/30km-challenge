@@ -731,8 +731,8 @@ function refreshShare() {
   if (new Set(records.map(r => r.pace)).size >= 2) badges.push({ num: '⑥', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' });
   if (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) badges.push({ num: '⑦', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' });
   
-  document.getElementById('shareBadgesContainer').innerHTML = badges.map(b => 
-    `<div class="share-badge" style="background:${b.color};">${b.num}</div>`
+ document.getElementById('shareBadgesContainer').innerHTML = badges.map(b => 
+    `<img src="${b.img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.style.display='none'">`
   ).join('');
 }
 
