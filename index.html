@@ -48,13 +48,13 @@
   </style>
 </head>
 <body>
- 
+
 <div class="container">
   <header>
     <h1>金沢30km挑戦会</h1>
     <p class="subtitle">2026年4月～2027年3月</p>
   </header>
- 
+
   <div id="loginSection" style="display: block;">
     <div class="card">
       <h2 style="margin-bottom: 20px;">ログイン</h2>
@@ -66,19 +66,19 @@
       <p style="font-size: 12px; color: #999; margin-top: 15px; text-align: center;">デモ: 田中 太郎 / pass1234</p>
     </div>
   </div>
- 
+
   <div id="appSection" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 id="userName" style="margin: 0;"></h2>
       <button class="btn" onclick="logout()" style="padding: 8px 16px;">ログアウト</button>
     </div>
- 
+
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('dashboard')">ダッシュボード</button>
       <button class="tab-btn" onclick="switchTab('record')">記録管理</button>
       <button class="tab-btn" onclick="switchTab('share')">シェア</button>
     </div>
- 
+
     <!-- ダッシュボード -->
     <div id="dashboard" class="tab-content active">
       <div class="metrics">
@@ -99,13 +99,13 @@
           <div class="metric-label">最長距離</div>
         </div>
       </div>
- 
+
       <div class="card">
         <h3 style="margin-bottom: 15px;">達成バッジ</h3>
         <div class="badge-grid" id="badgeGrid"></div>
       </div>
     </div>
- 
+
     <!-- 記録管理 -->
     <div id="record" class="tab-content">
       <div class="card">
@@ -143,13 +143,13 @@
         </div>
         <button class="btn" onclick="saveRecord()" style="width: 100%;">記録を保存</button>
       </div>
- 
+
       <div class="card">
         <h3 style="margin-bottom: 15px;">記録一覧</h3>
         <div id="recordList" class="record-list"></div>
       </div>
     </div>
- 
+
     <!-- シェア -->
     <div id="share" class="tab-content">
       <div class="share-card">
@@ -169,7 +169,7 @@
     </div>
   </div>
 </div>
- 
+
 <script>
 const MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
 const PACES = [
@@ -180,7 +180,7 @@ const PACES = [
   { val: '530', label: "5'30/km", limitMin: 165 },
   { val: '630', label: "6'30/km", limitMin: 195 }
 ];
- 
+
 let users = {
   'TT': { name: '田中 太郎', pass: 'pass1234', records: [
     {month:0,dist:25,pace:'630',h:3,m:12,s:0,total:192},
@@ -190,9 +190,9 @@ let users = {
     {month:4,dist:30,pace:'430',h:2,m:49,s:0,total:169}
   ]}
 };
- 
+
 let currentUser = null;
- 
+
 function login() {
   const name = document.getElementById('loginName').value.trim();
   const pass = document.getElementById('loginPass').value;
@@ -217,7 +217,7 @@ function login() {
   populateMonthSelect();
   refreshAll();
 }
- 
+
 function logout() {
   currentUser = null;
   document.getElementById('loginSection').style.display = 'block';
@@ -225,7 +225,7 @@ function logout() {
   document.getElementById('loginName').value = '';
   document.getElementById('loginPass').value = '';
 }
- 
+
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach((b, i) => {
     b.classList.toggle('active', ['dashboard','record','share'][i] === name);
@@ -233,7 +233,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById(name).classList.add('active');
 }
- 
+
 function populateMonthSelect() {
   const sel = document.getElementById('recMonth');
   sel.innerHTML = '<option value="">選択してください</option>';
@@ -244,12 +244,12 @@ function populateMonthSelect() {
     sel.appendChild(opt);
   });
 }
- 
+
 function fmtTime(min) {
   const h = Math.floor(min/60), m = Math.floor(min%60), s = Math.round((min%1)*60);
   return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
- 
+
 function saveRecord() {
   const month = parseInt(document.getElementById('recMonth').value);
   const pace = document.getElementById('recPace').value;
@@ -281,7 +281,7 @@ function saveRecord() {
   refreshAll();
   alert('記録を保存しました');
 }
- 
+
 function refreshAll() {
   if (!currentUser) return;
   const records = users[currentUser].records;
@@ -301,29 +301,29 @@ function refreshAll() {
   document.getElementById('shareCount').textContent = records.length + '回';
   document.getElementById('shareFinished').textContent = finished + '回';
 }
- 
+
 function renderBadges(records, finished) {
   const uniquePaces = new Set(records.map(r => r.pace));
   const badges = [
-    { name: '初参加', desc: '初参加', cond: records.length >= 1 },
-    { name: '3回連続', desc: '3回参加', cond: records.length >= 3 },
-    { name: '6回参加', desc: '6回参加', cond: records.length >= 6 },
-    { name: '完走', desc: '30km完走', cond: finished >= 1 },
-    { name: 'トリプル', desc: '3回完走', cond: finished >= 3 },
-    { name: 'ランクアップ', desc: 'ランクアップ', cond: uniquePaces.size >= 2 },
-    { name: 'エリート', desc: '上位ランク', cond: false }
+    { name: '初参加', img: 'images/badge-1.png', cond: records.length >= 1 },
+    { name: '3回連続', img: 'images/badge-2.png', cond: records.length >= 3 },
+    { name: '6回参加', img: 'images/badge-3.png', cond: records.length >= 6 },
+    { name: '完走', img: 'images/badge-4.png', cond: finished >= 1 },
+    { name: 'トリプル', img: 'images/badge-5.png', cond: finished >= 3 },
+    { name: 'ランクアップ', img: 'images/badge-6.png', cond: uniquePaces.size >= 2 },
+    { name: 'エリート', img: 'images/badge-7.png', cond: false }
   ];
   
   const html = badges.map((b, i) => `
     <div class="badge ${b.cond ? 'unlocked' : ''}">
-      <div class="badge-img">${i+1}</div>
+      <img src="${b.img}" alt="${b.name}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;" onerror="this.style.display='none'">
       <div class="badge-name">${b.name}</div>
     </div>
   `).join('');
   
   document.getElementById('badgeGrid').innerHTML = html;
 }
- 
+
 function renderRecordList(records) {
   const sorted = [...records].sort((a,b) => a.month - b.month);
   const html = sorted.map(r => {
@@ -340,9 +340,9 @@ function renderRecordList(records) {
   
   document.getElementById('recordList').innerHTML = html || '<p style="text-align: center; color: #999;">記録がありません</p>';
 }
- 
+
 populateMonthSelect();
 </script>
- 
+
 </body>
 </html>
