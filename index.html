@@ -554,22 +554,20 @@ function renderAchievements(records) {
   const uniquePaces = new Set(records.map(r => r.pace));
   
   const badges = [
-    { id: 'first', name: '初参加', desc: 'イベント初参加', class: 'first', cond: records.length >= 1 },
-    { id: 'three', name: '3回連続', desc: '3回連続参加', class: 'three', cond: records.length >= 3 },
-    { id: 'sixmonths', name: '6回参加', desc: '合計6回以上', class: 'speedup', cond: records.length >= 6 },
-    { id: 'finish', name: '完走', desc: '30km完走達成', class: 'finish', cond: finished >= 1 },
-    { id: 'triple', name: 'トリプル', desc: '完走3回以上', class: 'triple', cond: finished >= 3 },
-    { id: 'speedup', name: 'ランクアップ', desc: 'ランクアップ達成', class: 'speedup', cond: uniquePaces.size >= 2 },
-    { id: 'elite', name: 'エリート', desc: '上位ランク完走', class: 'elite', cond: (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) },
+    { id: 'first', name: '初参加', desc: 'イベント初参加', img: 'images/badge-1.png', cond: records.length >= 1 },
+    { id: 'three', name: '3回連続', desc: '3回連続参加', img: 'images/badge-2.png', cond: records.length >= 3 },
+    { id: 'sixmonths', name: '6回参加', desc: '合計6回以上', img: 'images/badge-3.png', cond: records.length >= 6 },
+    { id: 'finish', name: '完走', desc: '30km完走達成', img: 'images/badge-4.png', cond: finished >= 1 },
+    { id: 'triple', name: 'トリプル', desc: '完走3回以上', img: 'images/badge-5.png', cond: finished >= 3 },
+    { id: 'speedup', name: 'ランクアップ', desc: 'ランクアップ達成', img: 'images/badge-6.png', cond: uniquePaces.size >= 2 },
+    { id: 'elite', name: 'エリート', desc: '上位ランク完走', img: 'images/badge-7.png', cond: (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) },
   ];
   
   container.innerHTML = badges.map(b => {
     const unlocked = b.cond;
-    const nums = ['①', '②', '③', '④', '⑤', '⑥', '⑦'];
-    const num = badges.findIndex(x => x.id === b.id);
     return `
       <div class="badge-card ${unlocked ? 'unlocked' : 'locked'}">
-        <div class="badge-visual ${b.class}">${nums[num]}</div>
+        <img src="${b.img}" alt="${b.name}" class="badge-image" onerror="this.style.display='none'">
         <div class="badge-name">${b.name}</div>
         <div class="badge-desc">${b.desc}</div>
       </div>
