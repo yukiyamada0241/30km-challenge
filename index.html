@@ -554,20 +554,22 @@ function renderAchievements(records) {
   const uniquePaces = new Set(records.map(r => r.pace));
   
   const badges = [
-    { id: 'first', name: '初参加', desc: 'イベント初参加', img: 'images/badge-1.png', cond: records.length >= 1 },
-    { id: 'three', name: '3回連続', desc: '3回連続参加', img: 'images/badge-2.png', cond: records.length >= 3 },
-    { id: 'sixmonths', name: '6回参加', desc: '合計6回以上', img: 'images/badge-3.png', cond: records.length >= 6 },
-    { id: 'finish', name: '完走', desc: '30km完走達成', img: 'images/badge-4.png', cond: finished >= 1 },
-    { id: 'triple', name: 'トリプル', desc: '完走3回以上', img: 'images/badge-5.png', cond: finished >= 3 },
-    { id: 'speedup', name: 'ランクアップ', desc: 'ランクアップ達成', img: 'images/badge-6.png', cond: uniquePaces.size >= 2 },
-    { id: 'elite', name: 'エリート', desc: '上位ランク完走', img: 'images/badge-7.png', cond: (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) },
+    { id: 'first', name: '初参加', desc: 'イベント初参加', class: 'first', cond: records.length >= 1 },
+    { id: 'three', name: '3回連続', desc: '3回連続参加', class: 'three', cond: records.length >= 3 },
+    { id: 'sixmonths', name: '6回参加', desc: '合計6回以上', class: 'speedup', cond: records.length >= 6 },
+    { id: 'finish', name: '完走', desc: '30km完走達成', class: 'finish', cond: finished >= 1 },
+    { id: 'triple', name: 'トリプル', desc: '完走3回以上', class: 'triple', cond: finished >= 3 },
+    { id: 'speedup', name: 'ランクアップ', desc: 'ランクアップ達成', class: 'speedup', cond: uniquePaces.size >= 2 },
+    { id: 'elite', name: 'エリート', desc: '上位ランク完走', class: 'elite', cond: (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) },
   ];
   
   container.innerHTML = badges.map(b => {
     const unlocked = b.cond;
+    const nums = ['①', '②', '③', '④', '⑤', '⑥', '⑦'];
+    const num = badges.findIndex(x => x.id === b.id);
     return `
       <div class="badge-card ${unlocked ? 'unlocked' : 'locked'}">
-        <img src="${b.img}" alt="${b.name}" class="badge-image" onerror="this.style.display='none'">
+        <div class="badge-visual ${b.class}">${nums[num]}</div>
         <div class="badge-name">${b.name}</div>
         <div class="badge-desc">${b.desc}</div>
       </div>
@@ -723,16 +725,16 @@ function refreshShare() {
 
   const paceRanks = getPaceBadges(records);
   const badges = [];
-  if (records.length >= 1) badges.push({ img: 'images/badge-1.png', alt: '初参加' });
-  if (records.length >= 3) badges.push({ img: 'images/badge-2.png', alt: '3回連続' });
-  if (records.length >= 6) badges.push({ img: 'images/badge-3.png', alt: '6回参加' });
-  if (finished >= 1) badges.push({ img: 'images/badge-4.png', alt: '完走' });
-  if (finished >= 3) badges.push({ img: 'images/badge-5.png', alt: 'トリプル' });
-  if (new Set(records.map(r => r.pace)).size >= 2) badges.push({ img: 'images/badge-6.png', alt: 'ランクアップ' });
-  if (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) badges.push({ img: 'images/badge-7.png', alt: 'エリート' });
+  if (records.length >= 1) badges.push({ img: 'images/badge-1.png' });
+  if (records.length >= 3) badges.push({ img: 'images/badge-2.png' });
+  if (records.length >= 6) badges.push({ img: 'images/badge-3.png' });
+  if (finished >= 1) badges.push({ img: 'images/badge-4.png' });
+  if (finished >= 3) badges.push({ img: 'images/badge-5.png' });
+  if (new Set(records.map(r => r.pace)).size >= 2) badges.push({ img: 'images/badge-6.png' });
+  if (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) badges.push({ img: 'images/badge-7.png' });
   
   document.getElementById('shareBadgesContainer').innerHTML = badges.map(b => 
-    `<img src="${b.img}" alt="${b.alt}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.style.display='none'">`
+    `<img src="${b.img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.style.display='none'">`
   ).join('');
 }
 
