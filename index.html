@@ -723,13 +723,14 @@ function refreshShare() {
 
   const paceRanks = getPaceBadges(records);
   const badges = [];
-  if (records.length >= 1) badges.push({ num: '①', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' });
-  if (records.length >= 3) badges.push({ num: '②', color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' });
-  if (records.length >= 6) badges.push({ num: '③', color: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' });
-  if (finished >= 1) badges.push({ num: '④', color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' });
-  if (finished >= 3) badges.push({ num: '⑤', color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' });
-  if (new Set(records.map(r => r.pace)).size >= 2) badges.push({ num: '⑥', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' });
-  if (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) badges.push({ num: '⑦', color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' });
+ 
+  if (records.length >= 1) badges.push({ img: 'images/badge-1.png' });
+  if (records.length >= 3) badges.push({ img: 'images/badge-2.png' });
+  if (records.length >= 6) badges.push({ img: 'images/badge-3.png' });
+  if (finished >= 1) badges.push({ img: 'images/badge-4.png' });
+  if (finished >= 3) badges.push({ img: 'images/badge-5.png' });
+  if (new Set(records.map(r => r.pace)).size >= 2) badges.push({ img: 'images/badge-6.png' });
+  if (paceRanks['400'] || paceRanks['415'] || paceRanks['430']) badges.push({ img: 'images/badge-7.png' });
   
  document.getElementById('shareBadgesContainer').innerHTML = badges.map(b => 
     `<img src="${b.img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" onerror="this.style.display='none'">`
