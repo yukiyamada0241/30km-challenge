@@ -365,7 +365,19 @@ function loginAs(uid) {
   document.getElementById('avatarInitials').textContent = users[uid].name.slice(0,2);
   document.getElementById('shareName').textContent = users[uid].name;
   populateMonthSelect();
-  refreshAll();
+  
+  // Firebaseからデータを読み込む
+  db.ref('users/' + uid + '/records').on('value', (snapshot) => {
+    users[uid].records = [];
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      Object.keys(data).forEach(key => {
+        users[uid].records.push(data[key]);
+      });
+    }
+    users[uid].records.sort((a,b)=>a.month-b.month);
+    refreshAll();
+  });
 }
 
 function doLogout() {
@@ -422,20 +434,26 @@ function saveRecord() {
   if (month===''||pace===''||dist===0||(!h&&!m&&!s)) { showMsg('recMsg','すべての項目を入力してください','#c33'); return; }
   const total = h*60 + m + s/60;
   if (total<60||total>600||dist<5||dist>35) { showMsg('recMsg','入力値が正しくありません','#c33'); return; }
-  const records = users[currentUser].records;
+  
   const mi = parseInt(month);
-  const existing = records.findIndex(r=>r.month===mi);
-  if (existing>=0) records[existing]={month:mi,dist,pace,h,m,s,total};
-  else records.push({month:mi,dist,pace,h,m,s,total});
-  records.sort((a,b)=>a.month-b.month);
-  showMsg('recMsg','✓ 記録を保存しました','#3B6D11');
-  document.getElementById('recMonth').value = '';
-  document.getElementById('recPace').value = '';
-  document.getElementById('recDist').value = '';
-  document.getElementById('recH').value = '';
-  document.getElementById('recM').value = '';
-  document.getElementById('recS').value = '';
-  refreshAll();
+  const recordData = {month:mi,dist,pace,h,m,s,total};
+  
+  // Firebaseに保存
+  const userId = currentUser;
+  db.ref('users/' + userId + '/records/' + mi).set(recordData, (error) => {
+    if (error) {
+      showMsg('recMsg','保存に失敗しました','#c33');
+    } else {
+      showMsg('recMsg','✓ 記録を保存しました','#3B6D11');
+      document.getElementById('recMonth').value = '';
+      document.getElementById('recPace').value = '';
+      document.getElementById('recDist').value = '';
+      document.getElementById('recH').value = '';
+      document.getElementById('recM').value = '';
+      document.getElementById('recS').value = '';
+      refreshAll();
+    }
+  });
 }
 
 function openEditModal(month) {
@@ -458,9 +476,6 @@ function closeEditModal() {
 }
 
 function updateRecord() {
-  const records = users[currentUser].records;
-  const rec = records.find(r => r.month === editingRecordMonth);
-  if (!rec) return;
   const pace = document.getElementById('editPace').value;
   const dist = parseFloat(document.getElementById('editDist').value)||0;
   const h = parseInt(document.getElementById('editH').value)||0;
@@ -469,25 +484,34 @@ function updateRecord() {
   if (pace===''||dist===0||(!h&&!m&&!s)) { showMsg('recMsg','すべての項目を入力してください','#c33'); return; }
   const total = h*60 + m + s/60;
   if (total<60||total>600||dist<5||dist>35) { showMsg('recMsg','入力値が正しくありません','#c33'); return; }
-  rec.pace = pace;
-  rec.dist = dist;
-  rec.h = h;
-  rec.m = m;
-  rec.s = s;
-  rec.total = total;
-  closeEditModal();
-  showMsg('recMsg','✓ 記録を更新しました','#3B6D11');
-  refreshAll();
+  
+  const recordData = {month:editingRecordMonth,dist,pace,h,m,s,total};
+  
+  // Firebaseに保存
+  db.ref('users/' + currentUser + '/records/' + editingRecordMonth).set(recordData, (error) => {
+    if (error) {
+      showMsg('recMsg','更新に失敗しました','#c33');
+    } else {
+      closeEditModal();
+      showMsg('recMsg','✓ 記録を更新しました','#3B6D11');
+      refreshAll();
+    }
+  });
 }
 
 function deleteRecord() {
   if (!confirm('この記録を削除しますか？')) return;
-  const records = users[currentUser].records;
-  const idx = records.findIndex(r => r.month === editingRecordMonth);
-  if (idx >= 0) records.splice(idx, 1);
-  closeEditModal();
-  showMsg('recMsg','✓ 記録を削除しました','#3B6D11');
-  refreshAll();
+  
+  // Firebaseから削除
+  db.ref('users/' + currentUser + '/records/' + editingRecordMonth).remove((error) => {
+    if (error) {
+      showMsg('recMsg','削除に失敗しました','#c33');
+    } else {
+      closeEditModal();
+      showMsg('recMsg','✓ 記録を削除しました','#3B6D11');
+      refreshAll();
+    }
+  });
 }
 
 function getHighestPace(records) {
