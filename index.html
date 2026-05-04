@@ -662,7 +662,10 @@ function drawShareGraph(records) {
     svg.appendChild(bar);
     
     // 距離ラベル（棒の上）
-    if (r.dist >= 30) {
+    const paceObj = PACES.find(p => p.val === r.pace);
+    const isClear = r.dist >= 30 && r.total <= paceObj.limitMin;
+    
+    if (isClear) {
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', x + barWidth / 2);
       label.setAttribute('y', y - 3);
