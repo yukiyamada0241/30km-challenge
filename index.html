@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>30km Run - ランニングイベント記録</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -57,12 +60,6 @@
     .badge-card.unlocked { border: 2px solid #f7931e; background: white; }
     .badge-card.locked { opacity: 0.4; }
     .badge-visual { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; }
-    .badge-visual.first { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .badge-visual.three { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
-    .badge-visual.speedup { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; }
-    .badge-visual.finish { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
-    .badge-visual.triple { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
-    .badge-visual.elite { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
     .badge-name { font-size: 10px; font-weight: 600; color: #333; padding: 6px 4px; }
     .badge-desc { font-size: 8px; color: #999; padding: 0 4px 6px; }
     .share-canvas { background: linear-gradient(135deg, #1a3a6e 0%, #185fa5 50%, #378add 100%); border-radius: 12px; padding: 2rem 1.5rem; margin-bottom: 1.5rem; color: #fff; position: relative; overflow: hidden; }
@@ -286,6 +283,26 @@
 </div>
 
 <script>
+let db = null;
+let auth = null;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCBOG2I8SrJd4SoIOpOgN2DChxKZ8jhMjk",
+  authDomain: "km-challenge-e5c87.firebaseapp.com",
+  projectId: "km-challenge-e5c87",
+  storageBucket: "km-challenge-e5c87.firebasestorage.app",
+  messagingSenderId: "695231456027",
+  appId: "1:695231456027:web:f15d9f47f244a5c1e3a9be",
+  databaseURL: "https://km-challenge-e5c87-default-rtdb.firebaseio.com"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+db = firebase.database();
+auth = firebase.auth();
+auth.signInAnonymously().catch(e => console.error(e));
+
 const MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月'];
 const PACES = [
   { val: '400', label: "4'00/km", rank: 6, limitMin: 120 },
@@ -343,7 +360,18 @@ function loginAs(uid) {
   document.getElementById('avatarInitials').textContent = users[uid].name.slice(0,2);
   document.getElementById('shareName').textContent = users[uid].name;
   populateMonthSelect();
-  refreshAll();
+  
+  db.ref('users/' + uid + '/records').on('value', snapshot => {
+    users[uid].records = [];
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      Object.keys(data).forEach(key => {
+        users[uid].records.push(data[key]);
+      });
+    }
+    users[uid].records.sort((a,b)=>a.month-b.month);
+    refreshAll();
+  });
 }
 
 function doLogout() {
@@ -402,10 +430,13 @@ function saveRecord() {
   if (total<60||total>600||dist<5||dist>35) { showMsg('recMsg','入力値が正しくありません','#c33'); return; }
   const records = users[currentUser].records;
   const mi = parseInt(month);
+  const recordData = {month:mi,dist,pace,h,m,s,total};
   const existing = records.findIndex(r=>r.month===mi);
-  if (existing>=0) records[existing]={month:mi,dist,pace,h,m,s,total};
-  else records.push({month:mi,dist,pace,h,m,s,total});
+  if (existing>=0) records[existing]=recordData;
+  else records.push(recordData);
   records.sort((a,b)=>a.month-b.month);
+
+  db.ref('users/' + currentUser + '/records/' + mi).set(recordData);
   showMsg('recMsg','✓ 記録を保存しました','#3B6D11');
   document.getElementById('recMonth').value = '';
   document.getElementById('recPace').value = '';
@@ -453,6 +484,8 @@ function updateRecord() {
   rec.m = m;
   rec.s = s;
   rec.total = total;
+
+  db.ref('users/' + currentUser + '/records/' + editingRecordMonth).set(rec);
   closeEditModal();
   showMsg('recMsg','✓ 記録を更新しました','#3B6D11');
   refreshAll();
@@ -463,6 +496,8 @@ function deleteRecord() {
   const records = users[currentUser].records;
   const idx = records.findIndex(r => r.month === editingRecordMonth);
   if (idx >= 0) records.splice(idx, 1);
+
+  db.ref('users/' + currentUser + '/records/' + editingRecordMonth).remove();
   closeEditModal();
   showMsg('recMsg','✓ 記録を削除しました','#3B6D11');
   refreshAll();
@@ -619,12 +654,10 @@ function drawShareGraph(records) {
   const barWidth = Math.max(18, width / (sorted.length * 1.5));
   const spacing = width / sorted.length;
   
-  // スケール：距離（0-35km）と時間色を使用
   const maxTime = Math.max(...sorted.map(r => r.total));
   const minTime = Math.min(...sorted.map(r => r.total));
   const timeRange = maxTime - minTime || 1;
   
-  // 背景グリッド線
   for (let i = 0; i <= 3; i++) {
     const y = padding + (height / 3) * i;
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -637,21 +670,18 @@ function drawShareGraph(records) {
     svg.appendChild(line);
   }
   
-  // 棒グラフ
   sorted.forEach((r, i) => {
     const x = padding + (i * spacing) + (spacing - barWidth) / 2;
     const distRatio = r.dist / 35;
     const barHeight = distRatio * height;
     const y = padding + height - barHeight;
     
-    // 時間に基づいた色（遅い→明るい、速い→濃い）
     const timeNorm = (r.total - minTime) / timeRange;
-    const hue = 200 + (timeNorm * 40); // 青から青緑
+    const hue = 200 + (timeNorm * 40);
     const saturation = 100;
-    const lightness = 45 + (timeNorm * 15); // 暗い→明るい
+    const lightness = 45 + (timeNorm * 15);
     const barColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     
-    // 棒
     const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     bar.setAttribute('x', x);
     bar.setAttribute('y', y);
@@ -661,7 +691,6 @@ function drawShareGraph(records) {
     bar.setAttribute('rx', '2');
     svg.appendChild(bar);
     
-    // 距離ラベル（棒の上）
     const paceObj = PACES.find(p => p.val === r.pace);
     const isClear = r.dist >= 30 && r.total <= paceObj.limitMin;
     
@@ -686,7 +715,6 @@ function drawShareGraph(records) {
       svg.appendChild(label);
     }
     
-    // ペースラベル（棒の下）
     const paceLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     paceLabel.setAttribute('x', x + barWidth / 2);
     paceLabel.setAttribute('y', padding + height + 14);
@@ -697,7 +725,6 @@ function drawShareGraph(records) {
     svg.appendChild(paceLabel);
   });
   
-  // Y軸ラベル
   const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   yLabel.setAttribute('x', 8);
   yLabel.setAttribute('y', padding);
