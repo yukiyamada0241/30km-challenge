@@ -75,7 +75,7 @@
   <dialog id="editDialog"><form id="editForm" class="modal"><div class="modal-head"><h3>記録を編集</h3><button class="close" type="button" id="closeEdit">×</button></div><input type="hidden" id="editMonthIndex"><div class="field"><label>ペースグループ</label><select id="editPace" class="input"></select></div><div class="field"><label>走行距離</label><input id="editDist" class="input" type="number" min="5" max="35" step="0.1"></div><div class="field"><label>完了時間</label><div class="time-grid"><input id="editH" class="input" type="number" min="0" max="10"><input id="editM" class="input" type="number" min="0" max="59"><input id="editS" class="input" type="number" min="0" max="59"></div></div><div class="modal-actions"><button id="deleteRecord" type="button" class="btn btn-danger">削除</button><button class="btn btn-primary" type="submit">更新</button></div></form></dialog>
   <div id="toast" class="toast"></div>
 
-  <script src="firebase-config.js"></script>
+  <script src="firebase-config.js?v=2"></script>
   <script type="module">
     const MONTHS=[
       {label:'2026年4月',short:'4月'},{label:'2026年5月',short:'5月'},{label:'2026年6月',short:'6月'},{label:'2026年7月',short:'7月'},
