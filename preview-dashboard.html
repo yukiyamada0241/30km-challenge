@@ -28,7 +28,7 @@
       <p class="sub">2026年4月〜2027年3月。毎月の挑戦を記録して、自分の積み上げを可視化します。</p>
       <form id="loginForm">
         <div class="field"><label for="loginName">ランナー名</label><input class="input" id="loginName" autocomplete="name" placeholder="例：田中 太郎" required></div>
-        <div class="field"><label for="loginPassword">パスワード</label><input class="input" id="loginPassword" type="password" autocomplete="current-password" minlength="6" placeholder="6文字以上" required></div>
+        <div class="field"><label for="loginPassword">パスワード</label><input class="input" id="loginPassword" type="password" autocomplete="current-password" minlength="4" placeholder="4文字以上" required></div>
         <button class="btn btn-primary" type="submit">チャレンジを開く</button>
         <div class="error" id="loginError"></div>
       </form>
@@ -75,7 +75,12 @@
   <dialog id="editDialog"><form id="editForm" class="modal"><div class="modal-head"><h3>記録を編集</h3><button class="close" type="button" id="closeEdit">×</button></div><input type="hidden" id="editMonthIndex"><div class="field"><label>ペースグループ</label><select id="editPace" class="input"></select></div><div class="field"><label>走行距離</label><input id="editDist" class="input" type="number" min="5" max="35" step="0.1"></div><div class="field"><label>完了時間</label><div class="time-grid"><input id="editH" class="input" type="number" min="0" max="10"><input id="editM" class="input" type="number" min="0" max="59"><input id="editS" class="input" type="number" min="0" max="59"></div></div><div class="modal-actions"><button id="deleteRecord" type="button" class="btn btn-danger">削除</button><button class="btn btn-primary" type="submit">更新</button></div></form></dialog>
   <div id="toast" class="toast"></div>
 
-  <script src="firebase-config.js"></script>
+  <script>
+localStorage.setItem('km30_users_v2', JSON.stringify({"TT":{"id":"TT","name":"田中 太郎","passwordHash":"preview"}}));
+localStorage.setItem('km30_records_v2_TT', JSON.stringify({"0": {"month": 0, "dist": 28, "pace": "630", "h": 3, "m": 1, "s": 20, "total": 181.33333333333334}, "1": {"month": 1, "dist": 30, "pace": "600", "h": 2, "m": 58, "s": 10, "total": 178.16666666666666}, "2": {"month": 2, "dist": 30, "pace": "530", "h": 2, "m": 43, "s": 40, "total": 163.66666666666666}, "3": {"month": 3, "dist": 30, "pace": "500", "h": 2, "m": 27, "s": 18, "total": 147.3}, "4": {"month": 4, "dist": 30, "pace": "430", "h": 2, "m": 13, "s": 52, "total": 133.86666666666667}, "5": {"month": 5, "dist": 30, "pace": "415", "h": 2, "m": 6, "s": 45, "total": 126.75}, "6": {"month": 6, "dist": 30, "pace": "350", "h": 1, "m": 54, "s": 20, "total": 114.33333333333333}}));
+localStorage.setItem('km30_session','TT');
+</script>
+<script src="firebase-config.js"></script>
   <script type="module">
     const MONTHS=[
       {label:'2026年4月',short:'4月'},{label:'2026年5月',short:'5月'},{label:'2026年6月',short:'6月'},{label:'2026年7月',short:'7月'},
@@ -128,87 +133,32 @@
 
     function seedDemoIfNeeded(){if(currentUser?.name==='田中 太郎'&&!Object.keys(records).length){records=structuredClone(DEMO_RECORDS);saveLocalRecords();}}
 
-    async function internalEmailForName(name){
-      const digest=await hash(`km30:${normalizeName(name)}`);
-      return `u${digest.slice(0,40)}@30km-challenge.app`;
-    }
-
     async function setupCloud(){
       const c=window.FIREBASE_CONFIG||{};
       if(!c.apiKey||!c.appId){setSync(false,'LOCAL');return;}
       try{
-        const [{initializeApp},{getDatabase,ref,set,onValue,get},{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut}]=await Promise.all([
+        const [{initializeApp},{getDatabase,ref,set,onValue},{getAuth,signInAnonymously}]=await Promise.all([
           import('https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js'),
           import('https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js'),
           import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js')
         ]);
-        const app=initializeApp(c); const auth=getAuth(app); const db=getDatabase(app);
-        cloud={db,auth,ref,set,onValue,get,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut};
-        setSync(true,'CLOUD READY');
+        const app=initializeApp(c); const auth=getAuth(app); await signInAnonymously(auth); const db=getDatabase(app);
+        cloud={db,ref,set,onValue}; setSync(true,'CLOUD');
       }catch(err){console.warn('Firebase init failed, local mode:',err);setSync(false,'LOCAL');}
     }
     function setSync(ok,label){$('#syncDot').classList.toggle('online',ok);$('#syncText').textContent=label}
-    async function subscribeCloud(){
-      if(!cloud||!currentUser)return;
-      if(cloudUnsubscribe)cloudUnsubscribe();
-      const target=cloud.ref(cloud.db,`users/${currentUser.id}/records`);
-      let first=true;
-      cloudUnsubscribe=cloud.onValue(target,async snap=>{
-        const data=snap.val();
-        if(data){records=data;saveLocalRecords();renderAll();setSync(true,'SYNCED');}
-        else if(first){
-          first=false;
-          seedDemoIfNeeded();
-          if(Object.keys(records).length){
-            try{await cloud.set(target,records);setSync(true,'SYNCED')}catch(e){console.warn(e);setSync(false,'LOCAL')}
-          }else renderAll();
-        }
-        first=false;
-      });
-    }
+    function subscribeCloud(){if(!cloud||!currentUser)return; if(cloudUnsubscribe)cloudUnsubscribe(); const target=cloud.ref(cloud.db,`users/${currentUser.id}/records`); cloudUnsubscribe=cloud.onValue(target,snap=>{const data=snap.val();if(data){records=data;saveLocalRecords();renderAll();}})}
     async function persistRecords(){saveLocalRecords();renderAll();if(cloud&&currentUser){try{await cloud.set(cloud.ref(cloud.db,`users/${currentUser.id}/records`),records);setSync(true,'SYNCED')}catch(e){console.warn(e);setSync(false,'LOCAL');toast('端末には保存しました')}}}
 
     async function login(name,password){
-      name=normalizeName(name); if(!name||password.length<6)throw new Error('名前と6文字以上のパスワードを入力してください。');
-      if(cloud){
-        const email=await internalEmailForName(name);
-        let cred=null, created=false;
-        try{
-          cred=await cloud.signInWithEmailAndPassword(cloud.auth,email,password);
-        }catch(signInErr){
-          try{
-            cred=await cloud.createUserWithEmailAndPassword(cloud.auth,email,password); created=true;
-          }catch(createErr){
-            if(createErr?.code==='auth/email-already-in-use' || signInErr?.code==='auth/invalid-credential' || signInErr?.code==='auth/wrong-password') throw new Error('名前またはパスワードが一致しません。');
-            if(createErr?.code==='auth/weak-password') throw new Error('パスワードは6文字以上で入力してください。');
-            console.warn(signInErr,createErr); throw new Error('Firebaseにログインできませんでした。通信環境を確認してください。');
-          }
-        }
-        const uid=cred.user.uid;
-        currentUser={id:uid,name,email,createdAt:new Date().toISOString()};
-        localStorage.setItem('km30_session_name',name);
-        records=readLocalRecords(uid);
-        // 旧ローカル版の記録があれば初回のみ引き継ぐ
-        const legacyId=makeUserId(name), legacy=readLocalRecords(legacyId);
-        if(!Object.keys(records).length && Object.keys(legacy).length) records=legacy;
-        try{await cloud.set(cloud.ref(cloud.db,`users/${uid}/profile`),{name,updatedAt:new Date().toISOString()});}catch(e){console.warn('profile save failed',e)}
-        seedDemoIfNeeded();showApp();await subscribeCloud();renderAll();setSync(true,created?'ACCOUNT CREATED':'SYNCED');
-        return;
-      }
-      // Firebaseに接続できない時だけローカルモード
+      name=normalizeName(name); if(!name||password.length<4)throw new Error('名前と4文字以上のパスワードを入力してください。');
       const users=loadUsers(), id=makeUserId(name), passwordHash=await hash(password), existing=users[id];
       if(existing && (existing.name!==name || existing.passwordHash!==passwordHash))throw new Error('名前またはパスワードが一致しません。');
       if(!existing){users[id]={id,name,passwordHash,createdAt:new Date().toISOString()};saveUsers(users)}
-      currentUser=users[id]; localStorage.setItem('km30_session',id); records=readLocalRecords(id);seedDemoIfNeeded();showApp();renderAll();setSync(false,'LOCAL');
+      currentUser=users[id]; localStorage.setItem('km30_session',id); records=readLocalRecords(id);seedDemoIfNeeded();showApp();subscribeCloud();renderAll();
     }
-    async function logout(){if(cloudUnsubscribe)cloudUnsubscribe();cloudUnsubscribe=null;if(cloud?.auth){try{await cloud.signOut(cloud.auth)}catch(e){console.warn(e)}}currentUser=null;records={};localStorage.removeItem('km30_session');localStorage.removeItem('km30_session_name');$('#appView').classList.add('hidden');$('#loginView').classList.remove('hidden');$('#loginPassword').value=''}
-    async function restoreSession(){
-      if(cloud?.auth?.currentUser && !cloud.auth.currentUser.isAnonymous){
-        const name=localStorage.getItem('km30_session_name'); if(!name)return;
-        const uid=cloud.auth.currentUser.uid; currentUser={id:uid,name}; records=readLocalRecords(uid);showApp();await subscribeCloud();renderAll();return;
-      }
-      const id=localStorage.getItem('km30_session'),u=loadUsers()[id];if(!u)return;currentUser=u;records=readLocalRecords(id);seedDemoIfNeeded();showApp();renderAll();
-    }
+    function logout(){if(cloudUnsubscribe)cloudUnsubscribe();cloudUnsubscribe=null;currentUser=null;records={};localStorage.removeItem('km30_session');$('#appView').classList.add('hidden');$('#loginView').classList.remove('hidden');$('#loginPassword').value=''}
+    function restoreSession(){const id=localStorage.getItem('km30_session'),u=loadUsers()[id];if(!u)return;currentUser=u;records=readLocalRecords(id);seedDemoIfNeeded();showApp();subscribeCloud();renderAll()}
     function showApp(){$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden')}
 
     function renderAll(){if(!currentUser)return;renderDashboard();renderRecords();renderShare()}
@@ -262,7 +212,7 @@
     $('#downloadShare').onclick=downloadShare;$('#nativeShare').onclick=nativeShare;
     $('#editDialog').addEventListener('click',e=>{if(e.target===$('#editDialog'))closeEdit()});
 
-    initSelects(); await setupCloud(); await restoreSession();
+    initSelects(); await setupCloud(); restoreSession();
   </script>
 </body>
 </html>
