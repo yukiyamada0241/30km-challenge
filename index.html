@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#185fa5" />
-  <meta name="description" content="金沢30km挑戦会 2026-2027 記録管理アプリ" />
-  <title>金沢30km挑戦会 | 30KM Challenge</title>
+  <meta name="description" content="KANAZAWA Monthly 30K 2026-2027 記録・完走証アプリ" />
+  <title>KANAZAWA Monthly 30K</title>
   <style>
     :root{--navy:#0f3760;--blue:#185fa5;--mid:#3266ad;--sky:#378add;--pale:#eef6ff;--ink:#132238;--muted:#6c7b8f;--line:#dce8f5;--ok:#0c9b6d;--yellow:#f4c542;--danger:#c73f50;--shadow:0 12px 34px rgba(20,70,120,.12);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
     *{box-sizing:border-box} body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eaf4ff 0,#f8fbff 45%,#fff 100%);min-height:100vh} button,input,select{font:inherit} button{cursor:pointer}
@@ -16,6 +16,7 @@
     .official-card{border:1px solid #a9d4f8;background:linear-gradient(145deg,#f7fbff,#edf7ff)}.official-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:999px;background:#e9fff6;color:#07805a;font-size:10px;font-weight:900;border:1px solid #bdebd9}.official-note{font-size:11px;color:var(--muted);line-height:1.6;margin:8px 0 0}.official-login{margin:0 0 16px;padding:11px 13px;border-radius:14px;background:#e9fff6;border:1px solid #bdebd9;color:#087454;font-size:12px;font-weight:800}.records{display:grid;gap:9px}.record{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:13px}.month-chip{border-radius:12px;background:#eef6ff;text-align:center;padding:8px 4px;font-weight:900;color:var(--blue)}.month-chip small{display:block;font-size:9px;color:#75869a}.record-main b{font-size:15px}.record-main p{font-size:11px;color:var(--muted);margin:4px 0 0}.result{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:900}.result.clear{color:var(--ok)}.result.try{color:#7b6c2a}.edit-btn{border:0;background:#f1f6fb;color:#53677d;border-radius:10px;padding:8px 9px;margin-left:7px}.empty{text-align:center;padding:28px 14px;color:var(--muted);font-size:13px}
     .share-wrap{overflow:hidden;padding:0;background:#0d3156}.share-card{display:block;width:100%;height:auto}.share-actions{display:flex;gap:8px;padding:12px;background:#fff}.share-actions .btn{flex:1}.nav{position:fixed;z-index:25;left:50%;bottom:12px;transform:translateX(-50%);width:min(calc(100% - 24px),708px);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:rgba(14,48,82,.94);backdrop-filter:blur(14px);padding:7px;border-radius:20px;box-shadow:0 16px 40px rgba(10,40,75,.28)}.nav button{border:0;background:transparent;color:#9eb8d2;border-radius:14px;padding:9px 4px;font-size:10px;font-weight:800}.nav button.active{background:#fff;color:var(--blue)}.nav strong{display:block;font-size:18px;margin-bottom:2px}.page{display:none}.page.active{display:block}
     dialog{width:min(calc(100% - 28px),520px);border:0;border-radius:24px;padding:0;box-shadow:0 30px 90px rgba(0,30,70,.3)}dialog::backdrop{background:rgba(4,24,46,.55);backdrop-filter:blur(4px)}.modal{padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#eff5fa;border-radius:10px;width:36px;height:36px;font-size:20px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.toast{position:fixed;z-index:40;left:50%;top:18px;transform:translate(-50%,-20px);opacity:0;background:#0d3156;color:#fff;padding:11px 16px;border-radius:999px;font-size:12px;font-weight:800;pointer-events:none;transition:.22s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .finisher-prompt{margin-top:14px;padding:15px;border-radius:17px;background:linear-gradient(135deg,#fff9e8,#eef7ff);border:1px solid #e9d7a4;display:grid;gap:10px}.finisher-prompt strong{font-size:16px;color:var(--navy)}.finisher-prompt p{margin:0;font-size:12px;line-height:1.7;color:#5c6d80}.finisher-prompt-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.finisher-btn{border:0;border-radius:11px;padding:9px 10px;background:#edf5fc;color:var(--blue);font-weight:900;font-size:11px;white-space:nowrap}.finisher-btn.primary{background:linear-gradient(135deg,#d3a83c,#b88617);color:#fff;box-shadow:0 7px 15px rgba(184,134,23,.18)}.record-actions{display:flex;flex-direction:column;gap:5px;align-items:flex-end}.certificate-modal{width:min(calc(100vw - 22px),620px);max-height:94vh;overflow:auto}.certificate-stage{background:#eaf2f8;padding:10px;border-radius:18px;margin-top:14px}.certificate-stage svg{display:block;width:100%;height:auto;background:#fff;box-shadow:0 14px 34px rgba(12,45,80,.12)}.certificate-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.certificate-actions .btn{width:100%}.certificate-share-hint{margin:10px 0 0;text-align:center;color:var(--muted);font-size:11px;line-height:1.6}.certificate-official-note{display:inline-flex;align-items:center;gap:5px;color:#d7352f;font-weight:900;font-size:11px}.certificate-self-note{display:inline-flex;color:#7d8998;font-weight:800;font-size:11px}
     @media(min-width:620px){.stats{grid-template-columns:repeat(4,1fr)}.badges{grid-template-columns:repeat(7,1fr)}.form-grid{grid-template-columns:1fr 1fr}.login-card{padding:36px}.card{padding:20px}}
   </style>
 </head>
@@ -61,6 +62,11 @@
           <div class="field wide"><label for="dist">走行距離（5〜35km）</label><input id="dist" class="input" type="number" step="0.1" min="5" max="35" inputmode="decimal" placeholder="30.0" required></div>
           <div class="field wide"><label>完了時間（1:00:00〜10:00:00）</label><div class="time-grid"><input id="hours" class="input" type="number" min="0" max="10" placeholder="時" required><input id="minutes" class="input" type="number" min="0" max="59" placeholder="分" required><input id="seconds" class="input" type="number" min="0" max="59" placeholder="秒" required></div><div class="helper" id="limitHelper"></div></div>
         </div><div class="save-line"><button class="btn btn-primary" type="submit">記録を保存</button><span id="saveFlash" class="flash"></span></div></form>
+        <div id="finisherPrompt" class="finisher-prompt hidden">
+          <strong>🎉 クリアおめでとうございます！</strong>
+          <p>あなたの記録入り「完走証」ができました。画像にしてSNSでシェアできます。</p>
+          <div class="finisher-prompt-actions"><button id="showLatestCertificate" type="button" class="btn finisher-btn primary">完走証を表示</button><button id="shareLatestCertificate" type="button" class="btn finisher-btn">SNSでシェア</button></div>
+        </div>
       </div>
       <div id="officialCard" class="card official-card hidden">
         <div class="section-head"><h3>✓ 公認スタンプ</h3><span>当月記録のみ</span></div>
@@ -82,6 +88,7 @@
 
   <dialog id="editDialog"><form id="editForm" class="modal"><div class="modal-head"><h3>記録を編集</h3><button class="close" type="button" id="closeEdit">×</button></div><input type="hidden" id="editMonthIndex"><div class="field"><label>ペースグループ</label><select id="editPace" class="input"></select></div><div class="field"><label>走行距離</label><input id="editDist" class="input" type="number" min="5" max="35" step="0.1"></div><div class="field"><label>完了時間</label><div class="time-grid"><input id="editH" class="input" type="number" min="0" max="10"><input id="editM" class="input" type="number" min="0" max="59"><input id="editS" class="input" type="number" min="0" max="59"></div></div><div class="modal-actions"><button id="deleteRecord" type="button" class="btn btn-danger">削除</button><button class="btn btn-primary" type="submit">更新</button></div></form></dialog>
   <dialog id="badgeDialog"><div class="modal"><div class="modal-head"><h3 id="badgeDialogTitle">達成バッジ</h3><button class="close" type="button" id="closeBadge">×</button></div><div id="badgeModalBody" class="badge-modal-body"><img id="badgeDialogImage" alt=""><div id="badgeDialogState" class="badge-state"></div><p id="badgeDialogDescription" class="badge-description"></p></div></div></dialog>
+  <dialog id="certificateDialog"><div class="modal certificate-modal"><div class="modal-head"><div><h3>完走証</h3><div id="certificateStatus"></div></div><button class="close" type="button" id="closeCertificate">×</button></div><div class="certificate-stage"><svg id="certificateSvg" viewBox="0 0 1000 1414" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KANAZAWA Monthly 30K 完走証"></svg></div><div class="certificate-actions"><button id="downloadCertificate" class="btn btn-primary" type="button">画像として保存</button><button id="shareCertificate" class="btn btn-ghost" type="button">SNSでシェア</button></div><p class="certificate-share-hint">完走の記録を画像で残して、Instagram・X・LINEなどでシェアできます。</p></div></dialog>
   <div id="toast" class="toast"></div>
 
   <script src="firebase-config.js?v=2"></script>
@@ -123,7 +130,7 @@
       4:{month:4,dist:30,pace:'500',h:2,m:28,s:30,total:148.5}
     };
     const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-    let currentUser=null, records={}, cloud=null, cloudUnsubscribe=null, officialAccess=false;
+    let currentUser=null, records={}, cloud=null, cloudUnsubscribe=null, officialAccess=false, certificateRecord=null, latestClearMonth=null;
 
     function escapeHtml(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
     function normalizeName(s){return s.trim().replace(/\s+/g,' ')}
@@ -241,7 +248,7 @@
     }
     function showApp(){$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden')}
 
-    function renderAll(){if(!currentUser)return;renderDashboard();renderRecords();renderOfficialPanel();renderShare()}
+    function renderAll(){if(!currentUser)return;renderDashboard();renderRecords();renderOfficialPanel();renderFinisherPrompt();renderShare()}
     function stats(){const a=arrRecords(), clears=a.filter(isClear), best=clears.length?[...clears].sort((x,y)=>totalSeconds(x)-totalSeconds(y))[0]:null;return{a,clears,best,longest:a.length?Math.max(...a.map(r=>Number(r.dist))):0}}
     function renderDashboard(){
       const st=stats();$('#runnerName').textContent=currentUser.name;$('#statJoin').innerHTML=`${st.a.length}<span style="font-size:12px"> /12</span>`;$('#statClear').textContent=st.clears.length;$('#statBest').textContent=fmtTime(st.best);$('#statLongest').textContent=st.longest.toFixed(1);
@@ -254,8 +261,9 @@
     function renderRecords(){
       const a=arrRecords();$('#recordCount').textContent=`${a.length}件`;
       if(!a.length){$('#recordList').innerHTML='<div class="empty">まだ記録がありません。<br>最初のチャレンジを保存しましょう。</div>';return}
-      $('#recordList').innerHTML=a.map((r,i)=>{const prev=a.filter(x=>x.month<r.month).at(-1),delta=prev?Number(r.dist)-Number(prev.dist):null,trend=delta===null?'初回':delta>0?`↑ +${delta.toFixed(1)}km`:delta<0?`↓ ${delta.toFixed(1)}km`:'→ ±0km',official=isOfficial(r)?'<span class="official-badge">✓ 公認</span>':'';return `<div class="record"><div class="month-chip">${MONTHS[r.month].short}<small>${r.month<9?'2026':'2027'}</small></div><div class="record-main"><b>${recordIcon(r.dist)} ${Number(r.dist).toFixed(1)}km · ${paceFor(r.pace).label}</b><p>${fmtTime(r)}　${trend}　${official}</p></div><div><span class="result ${isClear(r)?'clear':'try'}">${isClear(r)?'CLEAR!':'TRY'}</span><button class="edit-btn" data-edit="${r.month}" aria-label="${MONTHS[r.month].short}を編集">編集</button></div></div>`}).join('');
+      $('#recordList').innerHTML=a.map((r,i)=>{const prev=a.filter(x=>x.month<r.month).at(-1),delta=prev?Number(r.dist)-Number(prev.dist):null,trend=delta===null?'初回':delta>0?`↑ +${delta.toFixed(1)}km`:delta<0?`↓ ${delta.toFixed(1)}km`:'→ ±0km',official=isOfficial(r)?'<span class="official-badge">✓ 公認</span>':'';return `<div class="record"><div class="month-chip">${MONTHS[r.month].short}<small>${r.month<9?'2026':'2027'}</small></div><div class="record-main"><b>${recordIcon(r.dist)} ${Number(r.dist).toFixed(1)}km · ${paceFor(r.pace).label}</b><p>${fmtTime(r)}　${trend}　${official}</p></div><div class="record-actions"><span class="result ${isClear(r)?'clear':'try'}">${isClear(r)?'CLEAR!':'TRY'}</span>${isClear(r)?`<button class="finisher-btn primary" data-certificate="${r.month}" type="button">完走証</button>`:''}<button class="edit-btn" data-edit="${r.month}" aria-label="${MONTHS[r.month].short}を編集">編集</button></div></div>`}).join('');
       $$('[data-edit]').forEach(b=>b.onclick=()=>openEdit(Number(b.dataset.edit)));
+      $$('[data-certificate]').forEach(b=>b.onclick=()=>openCertificate(Number(b.dataset.certificate)));
     }
     function renderOfficialPanel(){
       const card=$('#officialCard');
@@ -277,6 +285,41 @@
     function closeEdit(){$('#editDialog').close()}
     function openBadge(id){const b=BADGES.find(x=>x.id===id);if(!b)return;const earned=b.test(arrRecords()),body=$('#badgeModalBody');body.classList.toggle('earned',earned);$('#badgeDialogTitle').textContent=b.name;$('#badgeDialogImage').src=`images/badge-${b.id}.png`;$('#badgeDialogImage').alt=b.name;$('#badgeDialogState').textContent=earned?'✓ 獲得済み':'未獲得';$('#badgeDialogDescription').textContent=b.description;$('#badgeDialog').showModal()}
     function closeBadge(){$('#badgeDialog').close()}
+
+    function certificateDateLabel(r){
+      if(r?.recordedAt){const d=new Date(r.recordedAt);if(!Number.isNaN(d.getTime()))return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`}
+      return MONTHS[Number(r?.month)]?.label||'';
+    }
+    function renderFinisherPrompt(){
+      const box=$('#finisherPrompt');if(!box)return;
+      const r=latestClearMonth!==null?records[latestClearMonth]:null;
+      box.classList.toggle('hidden',!(r&&isClear(r)));
+    }
+    function certificateMarkup(r){
+      const name=svgEsc(currentUser?.name||''),dist=`${Number(r.dist).toFixed(1)} km`,time=fmtTime(r),date=certificateDateLabel(r),official=isOfficial(r);
+      const stamp=official?`<g transform="translate(785 345) rotate(-7)"><circle r="112" fill="#fff" fill-opacity=".82" stroke="#d93632" stroke-width="13"/><circle r="93" fill="none" stroke="#d93632" stroke-width="4"/><circle r="75" fill="none" stroke="#d93632" stroke-width="2" stroke-dasharray="5 7"/><text y="-36" fill="#d93632" font-size="26" font-weight="900" text-anchor="middle" font-family="serif">KANAZAWA</text><text y="-7" fill="#d93632" font-size="23" font-weight="900" text-anchor="middle" font-family="serif">Monthly 30K</text><text y="48" fill="#d93632" font-size="50" font-weight="900" text-anchor="middle" font-family="serif">公認</text><path d="M-60 69 H60" stroke="#d93632" stroke-width="3"/><circle cy="82" r="7" fill="#d93632"/></g>`:'';
+      return `<defs><linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#fcfdff"/></linearGradient><pattern id="asa" width="46" height="40" patternUnits="userSpaceOnUse"><path d="M23 0L46 20L23 40L0 20Z M23 0V40 M0 20H46 M11.5 10L34.5 30 M34.5 10L11.5 30" fill="none" stroke="#d9eaf7" stroke-width="1"/></pattern></defs>
+      <rect width="1000" height="1414" fill="url(#paper)"/><rect x="16" y="16" width="968" height="1382" fill="none" stroke="#8ca8bd" stroke-width="1.5"/>
+      <g opacity=".9" fill="none" stroke="#cde3f5" stroke-width="3"><path d="M0 85C120 105 180 170 302 185C430 202 492 137 610 152"/><path d="M0 101C122 121 184 186 304 201C429 217 496 154 614 169"/><path d="M0 118C123 138 186 202 307 217C431 233 499 170 617 185"/><path d="M1000 150C893 169 832 224 733 233C667 240 620 220 566 206"/><path d="M1000 166C895 185 835 240 735 249C669 256 622 236 568 222"/></g>
+      <g transform="translate(500 72)" stroke="#c6a764" fill="none" stroke-width="7"><path d="M-125 0H125L105 22H-105Z"/><path d="M-85 29H85"/><path d="M-70 29L-50 124M-48 29L-28 124M70 29L50 124M48 29L28 124"/></g>
+      <text x="500" y="245" text-anchor="middle" fill="#0e3156" font-family="Georgia,'Times New Roman',serif" font-size="67" letter-spacing="4">KANAZAWA</text><text x="500" y="306" text-anchor="middle" fill="#0e3156" font-family="Georgia,'Times New Roman',serif" font-size="54">Monthly 30K</text><path d="M270 330H730" stroke="#c4a35f" stroke-width="2"/>
+      <text x="500" y="430" text-anchor="middle" fill="#0e3156" font-family="serif" font-size="82" font-weight="700" letter-spacing="18">完走証</text><text x="500" y="480" text-anchor="middle" fill="#b49452" font-family="Georgia,serif" font-size="22" letter-spacing="8">FINISHER CERTIFICATE</text>${stamp}
+      ${[['氏名',name],['走行距離',dist],['完走タイム',time],['達成日',date]].map((x,i)=>{const y=605+i*92;return `<text x="120" y="${y}" fill="#0e3156" font-family="serif" font-size="28" font-weight="700">【${x[0]}】</text><text x="310" y="${y}" fill="#0e3156" font-family="sans-serif" font-size="31" font-weight="700">${x[1]}</text><path d="M300 ${y+20}H885" stroke="#365879" stroke-width="1.5"/>`}).join('')}
+      <text x="500" y="1015" text-anchor="middle" fill="#0e3156" font-family="serif" font-size="27">あなたは KANAZAWA Monthly 30K において、</text><text x="500" y="1060" text-anchor="middle" fill="#0e3156" font-family="serif" font-size="27">上記の記録で見事完走されたことをここに証します。</text><path d="M315 1116H455M545 1116H685" stroke="#c4a35f" stroke-width="2"/><rect x="493" y="1105" width="14" height="14" transform="rotate(45 500 1112)" fill="#c4a35f"/>
+      <g opacity=".95" fill="none" stroke="#cde3f5" stroke-width="4"><path d="M0 1280C121 1242 210 1273 310 1310C428 1355 538 1352 650 1328C759 1305 850 1318 1000 1378"/><path d="M0 1302C122 1264 210 1295 312 1332C430 1377 540 1374 652 1350C761 1327 850 1340 1000 1400"/><path d="M0 1324C124 1286 212 1317 314 1354C432 1399 542 1396 654 1372"/></g><rect x="780" y="1205" width="220" height="209" fill="url(#asa)" opacity=".65"/>
+      `;
+    }
+    function renderCertificate(r){certificateRecord=r;$('#certificateSvg').innerHTML=certificateMarkup(r);$('#certificateStatus').innerHTML=isOfficial(r)?'<span class="certificate-official-note">● KANAZAWA Monthly 30K 公認記録</span>':'<span class="certificate-self-note">自己申告記録</span>'}
+    function openCertificate(month){const r=records[month];if(!r||!isClear(r)){toast('クリア記録の完走証のみ表示できます');return}renderCertificate(r);$('#certificateDialog').showModal()}
+    function closeCertificate(){$('#certificateDialog').close()}
+    function makeCertificatePng(){
+      return new Promise((resolve,reject)=>{if(!certificateRecord)return reject(new Error('完走証を選択してください'));const svg=$('#certificateSvg'),xml=new XMLSerializer().serializeToString(svg),blob=new Blob([xml],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=1600;c.height=2262;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);c.toBlob(png=>png?resolve(png):reject(new Error('完走証の生成に失敗しました')),'image/png',1)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('完走証の画像化に失敗しました'))};img.src=url;});
+    }
+    async function downloadCertificate(){try{const png=await makeCertificatePng(),a=document.createElement('a');a.href=URL.createObjectURL(png);a.download=`KANAZAWA-Monthly30K-${MONTHS[certificateRecord.month].short}-${currentUser.id}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(e){toast(e.message)}}
+    async function shareCertificate(month=null){
+      if(month!==null){const r=records[month];if(!r||!isClear(r)){toast('完走証を作れるクリア記録がありません');return}renderCertificate(r)}
+      if(!certificateRecord){toast('完走証を選択してください');return}
+      try{const png=await makeCertificatePng(),file=new File([png],`KANAZAWA-Monthly30K-${MONTHS[certificateRecord.month].short}.png`,{type:'image/png'}),text=`KANAZAWA Monthly 30K ${MONTHS[certificateRecord.month].short}｜${Number(certificateRecord.dist).toFixed(1)}km｜${fmtTime(certificateRecord)}${isOfficial(certificateRecord)?'｜公認記録':''}\n#KANAZAWAMonthly30K #月例30K`;if(navigator.share){const data={title:'KANAZAWA Monthly 30K 完走証',text};if(navigator.canShare?.({files:[file]}))data.files=[file];await navigator.share(data)}else{const a=document.createElement('a');a.href=URL.createObjectURL(png);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('画像を保存しました。SNSへ投稿してください！')}}catch(e){if(e?.name!=='AbortError')toast('シェアできませんでした')}}
 
     function svgEsc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]))}
     function renderShare(){
@@ -305,12 +348,14 @@
     $('#fillDemo').onclick=()=>{$('#loginName').value='田中 太郎';$('#loginPassword').value='pass1234'};
     $('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginError').textContent='';try{await login($('#loginName').value,$('#loginPassword').value)}catch(err){$('#loginError').textContent=err.message}};
     $('#logoutBtn').onclick=logout; $('#pace').onchange=updateLimit; $$('.nav button').forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-    $('#recordForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#month').value),dist=Number($('#dist').value),pace=$('#pace').value,h=Number($('#hours').value),m=Number($('#minutes').value),s=Number($('#seconds').value),total=validateRecord(dist,h,m,s);records[month]={month,dist,pace,h,m,s,total};await persistRecords();$('#saveFlash').textContent=isClear(records[month])?'CLEAR!! 保存しました':'保存しました';setTimeout(()=>$('#saveFlash').textContent='',1800);toast(isClear(records[month])?`${clearLabel(records[month])} 🎉`:'記録を保存しました');}catch(err){toast(err.message)}};
-    $('#closeEdit').onclick=closeEdit;$('#editForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#editMonthIndex').value),dist=Number($('#editDist').value),pace=$('#editPace').value,h=Number($('#editH').value),m=Number($('#editM').value),s=Number($('#editS').value),total=validateRecord(dist,h,m,s);const wasOfficial=isOfficial(records[month]);records[month]={month,dist,pace,h,m,s,total};closeEdit();await persistRecords();toast(wasOfficial?'記録を更新しました（公認は解除）':'記録を更新しました')}catch(err){toast(err.message)}};
+    $('#recordForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#month').value),dist=Number($('#dist').value),pace=$('#pace').value,h=Number($('#hours').value),m=Number($('#minutes').value),s=Number($('#seconds').value),total=validateRecord(dist,h,m,s);records[month]={month,dist,pace,h,m,s,total,recordedAt:new Date().toISOString()};latestClearMonth=isClear(records[month])?month:null;await persistRecords();$('#saveFlash').textContent=isClear(records[month])?'CLEAR!! 完走証ができました':'保存しました';setTimeout(()=>$('#saveFlash').textContent='',2600);toast(isClear(records[month])?`${clearLabel(records[month])} 🎉 完走証をシェアしよう！`:'記録を保存しました');setTimeout(()=>{const el=$('#finisherPrompt');if(latestClearMonth!==null&&!el.classList.contains('hidden'))el.scrollIntoView({behavior:'smooth',block:'center'})},150);}catch(err){toast(err.message)}};
+    $('#closeEdit').onclick=closeEdit;$('#editForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#editMonthIndex').value),dist=Number($('#editDist').value),pace=$('#editPace').value,h=Number($('#editH').value),m=Number($('#editM').value),s=Number($('#editS').value),total=validateRecord(dist,h,m,s);const wasOfficial=isOfficial(records[month]);records[month]={month,dist,pace,h,m,s,total,recordedAt:records[month]?.recordedAt||new Date().toISOString()};latestClearMonth=isClear(records[month])?month:null;closeEdit();await persistRecords();toast(wasOfficial?'記録を更新しました（公認は解除）':'記録を更新しました')}catch(err){toast(err.message)}};
     $('#deleteRecord').onclick=async()=>{const month=Number($('#editMonthIndex').value);if(!confirm(`${MONTHS[month].label}の記録を削除しますか？`))return;delete records[month];closeEdit();await persistRecords();toast('記録を削除しました')};
     $('#downloadShare').onclick=downloadShare;$('#nativeShare').onclick=nativeShare;$('#certifyRecord').onclick=certifySelectedRecord;
+    $('#showLatestCertificate').onclick=()=>{if(latestClearMonth!==null)openCertificate(latestClearMonth)};$('#shareLatestCertificate').onclick=()=>{if(latestClearMonth!==null)shareCertificate(latestClearMonth)};
+    $('#downloadCertificate').onclick=downloadCertificate;$('#shareCertificate').onclick=()=>shareCertificate();$('#closeCertificate').onclick=closeCertificate;
     $('#editDialog').addEventListener('click',e=>{if(e.target===$('#editDialog'))closeEdit()});
-    $('#closeBadge').onclick=closeBadge;$('#badgeDialog').addEventListener('click',e=>{if(e.target===$('#badgeDialog'))closeBadge()});
+    $('#closeBadge').onclick=closeBadge;$('#badgeDialog').addEventListener('click',e=>{if(e.target===$('#badgeDialog'))closeBadge()});$('#certificateDialog').addEventListener('click',e=>{if(e.target===$('#certificateDialog'))closeCertificate()});
 
     initSelects(); await checkOfficialQr(); await setupCloud(); await restoreSession();
   </script>
