@@ -72,11 +72,11 @@
           <div class="field"><label for="month">開催月</label><select id="month" class="input" required></select></div>
           <div class="field"><label for="pace">ペースグループ</label><select id="pace" class="input" required></select></div>
           <div class="field wide"><label for="dist">走行距離（5〜35km）</label><input id="dist" class="input" type="number" step="0.1" min="5" max="35" inputmode="decimal" placeholder="30.0" required></div>
-          <div class="field wide"><label>完了時間（1:00:00〜10:00:00）</label><div class="time-grid"><input id="hours" class="input" type="number" min="0" max="10" placeholder="時" required><input id="minutes" class="input" type="number" min="0" max="59" placeholder="分" required><input id="seconds" class="input" type="number" min="0" max="59" placeholder="秒" required></div><div class="helper" id="limitHelper"></div></div>
+          <div class="field wide"><label>完了時間（1:00:00〜10:00:00）</label><div class="time-grid"><input id="hours" class="input" type="number" min="0" max="10" placeholder="時" required><input id="minutes" class="input" type="number" min="0" max="59" placeholder="分" required><input id="seconds" class="input" type="number" min="0" max="59" placeholder="秒" required></div><div class="helper" id="limitHelper"></div><div class="helper" style="margin-top:5px;color:#8b6a16">完走証：規定距離（25km / 30km）を走れば、制限時間に関係なく発行できます。</div></div>
         </div><div class="save-line"><button class="btn btn-primary" type="submit">記録を保存</button><span id="saveFlash" class="flash"></span></div></form>
         <div id="finisherPrompt" class="finisher-prompt hidden">
-          <strong>🎉 クリアおめでとうございます！</strong>
-          <p>あなたの記録入り「完走証」ができました。画像にしてSNSでシェアできます。</p>
+          <strong>🎉 規定距離達成！完走証を発行できます</strong>
+          <p>ペースグループの規定距離を走り切りました。タイムに関係なく、あなたの記録入り「完走証」を発行できます。</p>
           <div class="finisher-prompt-actions"><button id="showLatestCertificate" type="button" class="btn finisher-btn primary">完走証を表示</button><button id="shareLatestCertificate" type="button" class="btn finisher-btn">SNSでシェア</button></div>
         </div>
       </div>
@@ -154,6 +154,7 @@
     function totalMinutes(h,m,s){return Number(h)*60+Number(m)+Number(s)/60} function totalSeconds(r){return r.h*3600+r.m*60+r.s}
     function paceFor(id){return PACES.find(p=>p.id===id)||PACES[PACES.length-1]}
     function isClear(r){const p=paceFor(r.pace);return Number(r.dist)>=p.target && Number(r.total)<=p.limit+1e-9}
+    function isFinisherEligible(r){const p=paceFor(r.pace);return Number(r.dist)>=p.target}
     function officialSnapshot(r){return [r.month,Number(r.dist).toFixed(2),r.pace,Number(r.h),Number(r.m),Number(r.s),Number(r.total).toFixed(4)].join('|')}
     function isOfficial(r){return !!r?.official && r.officialSnapshot===officialSnapshot(r)}
     function clearLabel(r){return `${paceFor(r.pace).target}km CLEAR!!`}
@@ -273,7 +274,7 @@
     function renderRecords(){
       const a=arrRecords();$('#recordCount').textContent=`${a.length}件`;
       if(!a.length){$('#recordList').innerHTML='<div class="empty">まだ記録がありません。<br>最初のチャレンジを保存しましょう。</div>';return}
-      $('#recordList').innerHTML=a.map((r,i)=>{const prev=a.filter(x=>x.month<r.month).at(-1),delta=prev?Number(r.dist)-Number(prev.dist):null,trend=delta===null?'初回':delta>0?`↑ +${delta.toFixed(1)}km`:delta<0?`↓ ${delta.toFixed(1)}km`:'→ ±0km',official=isOfficial(r)?'<span class="official-badge">✓ 公認</span>':'';return `<div class="record"><div class="month-chip">${MONTHS[r.month].short}<small>${r.month<9?'2026':'2027'}</small></div><div class="record-main"><b>${recordIcon(r.dist)} ${Number(r.dist).toFixed(1)}km · ${paceFor(r.pace).label}</b><p>${fmtTime(r)}　${trend}　${official}</p></div><div class="record-actions"><span class="result ${isClear(r)?'clear':'try'}">${isClear(r)?'CLEAR!':'TRY'}</span>${isClear(r)?`<button class="finisher-btn primary" data-certificate="${r.month}" type="button">完走証</button>`:''}<button class="edit-btn" data-edit="${r.month}" aria-label="${MONTHS[r.month].short}を編集">編集</button></div></div>`}).join('');
+      $('#recordList').innerHTML=a.map((r,i)=>{const prev=a.filter(x=>x.month<r.month).at(-1),delta=prev?Number(r.dist)-Number(prev.dist):null,trend=delta===null?'初回':delta>0?`↑ +${delta.toFixed(1)}km`:delta<0?`↓ ${delta.toFixed(1)}km`:'→ ±0km',official=isOfficial(r)?'<span class="official-badge">✓ 公認</span>':'';return `<div class="record"><div class="month-chip">${MONTHS[r.month].short}<small>${r.month<9?'2026':'2027'}</small></div><div class="record-main"><b>${recordIcon(r.dist)} ${Number(r.dist).toFixed(1)}km · ${paceFor(r.pace).label}</b><p>${fmtTime(r)}　${trend}　${official}</p></div><div class="record-actions"><span class="result ${isClear(r)?'clear':'try'}">${isClear(r)?'CLEAR!':'TRY'}</span>${isFinisherEligible(r)?`<button class="finisher-btn primary" data-certificate="${r.month}" type="button">完走証</button>`:''}<button class="edit-btn" data-edit="${r.month}" aria-label="${MONTHS[r.month].short}を編集">編集</button></div></div>`}).join('');
       $$('[data-edit]').forEach(b=>b.onclick=()=>openEdit(Number(b.dataset.edit)));
       $$('[data-certificate]').forEach(b=>b.onclick=()=>openCertificate(Number(b.dataset.certificate)));
     }
@@ -305,7 +306,7 @@
     function renderFinisherPrompt(){
       const box=$('#finisherPrompt');if(!box)return;
       const r=latestClearMonth!==null?records[latestClearMonth]:null;
-      box.classList.toggle('hidden',!(r&&isClear(r)));
+      box.classList.toggle('hidden',!(r&&isFinisherEligible(r)));
     }
     function certificateMarkup(r){
       const name=svgEsc(currentUser?.name||''),dist=`${Number(r.dist).toFixed(1)} km`,time=fmtTime(r),date=certificateDateLabel(r),official=isOfficial(r);
@@ -322,14 +323,14 @@
       `;
     }
     function renderCertificate(r){certificateRecord=r;$('#certificateSvg').innerHTML=certificateMarkup(r);$('#certificateStatus').innerHTML=isOfficial(r)?'<span class="certificate-official-note">● KANAZAWA Monthly 30K 公認記録</span>':'<span class="certificate-self-note">自己申告記録</span>'}
-    function openCertificate(month){const r=records[month];if(!r||!isClear(r)){toast('クリア記録の完走証のみ表示できます');return}renderCertificate(r);$('#certificateDialog').showModal()}
+    function openCertificate(month){const r=records[month];if(!r||!isFinisherEligible(r)){toast(`完走証は${paceFor(r?.pace).target}km以上で発行できます`);return}renderCertificate(r);$('#certificateDialog').showModal()}
     function closeCertificate(){$('#certificateDialog').close()}
     function makeCertificatePng(){
       return new Promise((resolve,reject)=>{if(!certificateRecord)return reject(new Error('完走証を選択してください'));const svg=$('#certificateSvg'),xml=new XMLSerializer().serializeToString(svg),blob=new Blob([xml],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=1600;c.height=2262;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);c.toBlob(png=>png?resolve(png):reject(new Error('完走証の生成に失敗しました')),'image/png',1)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('完走証の画像化に失敗しました'))};img.src=url;});
     }
     async function downloadCertificate(){try{const png=await makeCertificatePng(),a=document.createElement('a');a.href=URL.createObjectURL(png);a.download=`KANAZAWA-Monthly30K-${MONTHS[certificateRecord.month].short}-${currentUser.id}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(e){toast(e.message)}}
     async function shareCertificate(month=null){
-      if(month!==null){const r=records[month];if(!r||!isClear(r)){toast('完走証を作れるクリア記録がありません');return}renderCertificate(r)}
+      if(month!==null){const r=records[month];if(!r||!isFinisherEligible(r)){toast('完走証を発行できる規定距離達成記録がありません');return}renderCertificate(r)}
       if(!certificateRecord){toast('完走証を選択してください');return}
       try{const png=await makeCertificatePng(),file=new File([png],`KANAZAWA-Monthly30K-${MONTHS[certificateRecord.month].short}.png`,{type:'image/png'}),text=`KANAZAWA Monthly 30K ${MONTHS[certificateRecord.month].short}｜${Number(certificateRecord.dist).toFixed(1)}km｜${fmtTime(certificateRecord)}${isOfficial(certificateRecord)?'｜公認記録':''}\n#KANAZAWAMonthly30K #月例30K`;if(navigator.share){const data={title:'KANAZAWA Monthly 30K 完走証',text};if(navigator.canShare?.({files:[file]}))data.files=[file];await navigator.share(data)}else{const a=document.createElement('a');a.href=URL.createObjectURL(png);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('画像を保存しました。SNSへ投稿してください！')}}catch(e){if(e?.name!=='AbortError')toast('シェアできませんでした')}}
 
@@ -360,8 +361,8 @@
     $('#fillDemo').onclick=()=>{$('#loginName').value='田中 太郎';$('#loginPassword').value='pass1234'};
     $('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginError').textContent='';try{await login($('#loginName').value,$('#loginPassword').value)}catch(err){$('#loginError').textContent=err.message}};
     $('#logoutBtn').onclick=logout; $('#pace').onchange=updateLimit; $$('.nav button').forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-    $('#recordForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#month').value),dist=Number($('#dist').value),pace=$('#pace').value,h=Number($('#hours').value),m=Number($('#minutes').value),s=Number($('#seconds').value),total=validateRecord(dist,h,m,s);records[month]={month,dist,pace,h,m,s,total,recordedAt:new Date().toISOString()};latestClearMonth=isClear(records[month])?month:null;await persistRecords();$('#saveFlash').textContent=isClear(records[month])?'CLEAR!! 完走証ができました':'保存しました';setTimeout(()=>$('#saveFlash').textContent='',2600);toast(isClear(records[month])?`${clearLabel(records[month])} 🎉 完走証をシェアしよう！`:'記録を保存しました');setTimeout(()=>{const el=$('#finisherPrompt');if(latestClearMonth!==null&&!el.classList.contains('hidden'))el.scrollIntoView({behavior:'smooth',block:'center'})},150);}catch(err){toast(err.message)}};
-    $('#closeEdit').onclick=closeEdit;$('#editForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#editMonthIndex').value),dist=Number($('#editDist').value),pace=$('#editPace').value,h=Number($('#editH').value),m=Number($('#editM').value),s=Number($('#editS').value),total=validateRecord(dist,h,m,s);const wasOfficial=isOfficial(records[month]);records[month]={month,dist,pace,h,m,s,total,recordedAt:records[month]?.recordedAt||new Date().toISOString()};latestClearMonth=isClear(records[month])?month:null;closeEdit();await persistRecords();toast(wasOfficial?'記録を更新しました（公認は解除）':'記録を更新しました')}catch(err){toast(err.message)}};
+    $('#recordForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#month').value),dist=Number($('#dist').value),pace=$('#pace').value,h=Number($('#hours').value),m=Number($('#minutes').value),s=Number($('#seconds').value),total=validateRecord(dist,h,m,s);records[month]={month,dist,pace,h,m,s,total,recordedAt:new Date().toISOString()};latestClearMonth=isFinisherEligible(records[month])?month:null;await persistRecords();const eligible=isFinisherEligible(records[month]),cleared=isClear(records[month]);$('#saveFlash').textContent=eligible?(cleared?'CLEAR!! 完走証ができました':'規定距離達成！完走証ができました'):'保存しました';setTimeout(()=>$('#saveFlash').textContent='',2600);toast(eligible?(cleared?`${clearLabel(records[month])} 🎉 完走証をシェアしよう！`:`${paceFor(records[month].pace).target}km走破！🎉 完走証をシェアしよう！`):'記録を保存しました');setTimeout(()=>{const el=$('#finisherPrompt');if(latestClearMonth!==null&&!el.classList.contains('hidden'))el.scrollIntoView({behavior:'smooth',block:'center'})},150);}catch(err){toast(err.message)}};
+    $('#closeEdit').onclick=closeEdit;$('#editForm').onsubmit=async e=>{e.preventDefault();try{const month=Number($('#editMonthIndex').value),dist=Number($('#editDist').value),pace=$('#editPace').value,h=Number($('#editH').value),m=Number($('#editM').value),s=Number($('#editS').value),total=validateRecord(dist,h,m,s);const wasOfficial=isOfficial(records[month]);records[month]={month,dist,pace,h,m,s,total,recordedAt:records[month]?.recordedAt||new Date().toISOString()};latestClearMonth=isFinisherEligible(records[month])?month:null;closeEdit();await persistRecords();toast(wasOfficial?'記録を更新しました（公認は解除）':'記録を更新しました')}catch(err){toast(err.message)}};
     $('#deleteRecord').onclick=async()=>{const month=Number($('#editMonthIndex').value);if(!confirm(`${MONTHS[month].label}の記録を削除しますか？`))return;delete records[month];closeEdit();await persistRecords();toast('記録を削除しました')};
     $('#downloadShare').onclick=downloadShare;$('#nativeShare').onclick=nativeShare;$('#certifyRecord').onclick=certifySelectedRecord;
     $('#showLatestCertificate').onclick=()=>{if(latestClearMonth!==null)openCertificate(latestClearMonth)};$('#shareLatestCertificate').onclick=()=>{if(latestClearMonth!==null)shareCertificate(latestClearMonth)};
